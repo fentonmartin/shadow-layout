@@ -4,25 +4,30 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+
 import com.dd.shadow.layout.R;
 
 public class ShadowLayout extends FrameLayout {
 
-    private int mShadowColor;
-    private float mShadowRadius;
-    private float mCornerRadius;
-    private float mDx;
-    private float mDy;
+    private int shadowColor;
+    private float shadowRadius;
+    private float cornerRadius;
+    private float dx;
+    private float dy;
 
-    private boolean mInvalidateShadowOnSizeChanged = true;
-    private boolean mForceInvalidateShadow = false;
+    private boolean isInvalidateShadowOnSizeChanged = true;
+    private boolean isForceInvalidateShadow = false;
 
     public ShadowLayout(Context context) {
         super(context);
@@ -59,8 +64,8 @@ public class ShadowLayout extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if(w > 0 && h > 0 && (getBackground() == null || mInvalidateShadowOnSizeChanged || mForceInvalidateShadow)) {
-            mForceInvalidateShadow = false;
+        if (w > 0 && h > 0 && (getBackground() == null || isInvalidateShadowOnSizeChanged || isForceInvalidateShadow)) {
+            isForceInvalidateShadow = false;
             setBackgroundCompat(w, h);
         }
     }
@@ -68,18 +73,18 @@ public class ShadowLayout extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if (mForceInvalidateShadow) {
-            mForceInvalidateShadow = false;
+        if (isForceInvalidateShadow) {
+            isForceInvalidateShadow = false;
             setBackgroundCompat(right - left, bottom - top);
         }
     }
 
     public void setInvalidateShadowOnSizeChanged(boolean invalidateShadowOnSizeChanged) {
-        mInvalidateShadowOnSizeChanged = invalidateShadowOnSizeChanged;
+        isInvalidateShadowOnSizeChanged = invalidateShadowOnSizeChanged;
     }
 
     public void invalidateShadow() {
-        mForceInvalidateShadow = true;
+        isForceInvalidateShadow = true;
         requestLayout();
         invalidate();
     }
@@ -87,15 +92,15 @@ public class ShadowLayout extends FrameLayout {
     private void initView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyledRes) {
         initAttributes(context, attrs, defStyledRes);
 
-        final int xPadding = (int) (mShadowRadius + Math.abs(mDx));
-        final int yPadding = (int) (mShadowRadius + Math.abs(mDy));
+        final int xPadding = (int) (shadowRadius + Math.abs(dx));
+        final int yPadding = (int) (shadowRadius + Math.abs(dy));
         setPadding(xPadding, yPadding, xPadding, yPadding);
     }
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     private void setBackgroundCompat(int w, int h) {
-        Bitmap bitmap = createShadowBitmap(w, h, mCornerRadius, mShadowRadius, mDx, mDy, mShadowColor, Color.TRANSPARENT);
+        Bitmap bitmap = createShadowBitmap(w, h, cornerRadius, shadowRadius, dx, dy, shadowColor, Color.TRANSPARENT);
         BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             setBackground(drawable);
@@ -104,19 +109,18 @@ public class ShadowLayout extends FrameLayout {
         }
     }
 
-
     private void initAttributes(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleRes) {
-        if (attrs == null) {
+        if (attrs == null)
             return;
-        }
+
         final TypedArray attr = getTypedArray(context, attrs, R.styleable.ShadowLayout, defStyleRes);
 
         try {
-            mCornerRadius = attr.getDimension(R.styleable.ShadowLayout_sl_cornerRadius, getResources().getDimension(R.dimen.default_corner_radius));
-            mShadowRadius = attr.getDimension(R.styleable.ShadowLayout_sl_shadowRadius, getResources().getDimension(R.dimen.default_shadow_radius));
-            mDx = attr.getDimension(R.styleable.ShadowLayout_sl_dx, 0);
-            mDy = attr.getDimension(R.styleable.ShadowLayout_sl_dy, 0);
-            mShadowColor = attr.getColor(R.styleable.ShadowLayout_sl_shadowColor, getResources().getColor(R.color.default_shadow_color));
+            cornerRadius = attr.getDimension(R.styleable.ShadowLayout_sl_cornerRadius, getResources().getDimension(R.dimen.default_corner_radius));
+            shadowRadius = attr.getDimension(R.styleable.ShadowLayout_sl_shadowRadius, getResources().getDimension(R.dimen.default_shadow_radius));
+            dx = attr.getDimension(R.styleable.ShadowLayout_sl_dx, 0);
+            dy = attr.getDimension(R.styleable.ShadowLayout_sl_dy, 0);
+            shadowColor = attr.getColor(R.styleable.ShadowLayout_sl_shadowColor, getResources().getColor(R.color.default_shadow_color));
         } finally {
             attr.recycle();
         }
@@ -148,7 +152,6 @@ public class ShadowLayout extends FrameLayout {
             shadowRect.top += Math.abs(dy);
             shadowRect.bottom -= Math.abs(dy);
         }
-
         if (dx > 0) {
             shadowRect.left += dx;
             shadowRect.right -= dx;
@@ -156,7 +159,6 @@ public class ShadowLayout extends FrameLayout {
             shadowRect.left += Math.abs(dx);
             shadowRect.right -= Math.abs(dx);
         }
-
         Paint shadowPaint = new Paint();
         shadowPaint.setAntiAlias(true);
         shadowPaint.setColor(fillColor);
@@ -165,7 +167,6 @@ public class ShadowLayout extends FrameLayout {
         if (!isInEditMode()) {
             shadowPaint.setShadowLayer(shadowRadius, dx, dy, shadowColor);
         }
-
         canvas.drawRoundRect(shadowRect, cornerRadius, cornerRadius, shadowPaint);
 
         return output;
