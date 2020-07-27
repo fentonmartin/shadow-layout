@@ -116,11 +116,11 @@ public class ShadowLayout extends FrameLayout {
         final TypedArray attr = getTypedArray(context, attrs, R.styleable.ShadowLayout, defStyleRes);
 
         try {
-            cornerRadius = attr.getDimension(R.styleable.ShadowLayout_sl_cornerRadius, getResources().getDimension(R.dimen.default_corner_radius));
-            shadowRadius = attr.getDimension(R.styleable.ShadowLayout_sl_shadowRadius, getResources().getDimension(R.dimen.default_shadow_radius));
-            dx = attr.getDimension(R.styleable.ShadowLayout_sl_dx, 0);
-            dy = attr.getDimension(R.styleable.ShadowLayout_sl_dy, 0);
-            shadowColor = attr.getColor(R.styleable.ShadowLayout_sl_shadowColor, getResources().getColor(R.color.default_shadow_color));
+            cornerRadius = attr.getDimension(R.styleable.ShadowLayout_cornerRadius, getResources().getDimension(R.dimen.default_corner_radius));
+            shadowRadius = attr.getDimension(R.styleable.ShadowLayout_shadowRadius, getResources().getDimension(R.dimen.default_shadow_radius));
+            dx = attr.getDimension(R.styleable.ShadowLayout_dx, 0);
+            dy = attr.getDimension(R.styleable.ShadowLayout_dy, 0);
+            shadowColor = attr.getColor(R.styleable.ShadowLayout_shadowColor, getResources().getColor(R.color.default_shadow_color));
         } finally {
             attr.recycle();
         }
